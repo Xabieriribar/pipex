@@ -16,6 +16,9 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
+#include <stdlib.h>
 
 int ft_check_access(int ac, char **av);
+char *ft_check_routes(char **envp);
+char	**ft_split(char const *s, char c);
 #endif
