@@ -4,15 +4,15 @@ FLAGS		:= -Wall -Wextra -Werror -g -I.
 RM			:= rm -f 
 AR			:= ar
 RCS			:= rcs
-SRCS		:= ft_pipex.c 
+SRCS		:= ft_pipex.c pipex_utils.c
 
 OBJS		:= $(SRCS:.c=.o)
 
 all:	$(NAME) 
 
-$(NAME): $(OBJS) 
-	@cd /home/xiribar/Desktop/projects/libft ; make ; make clean
-	@mv /home/xiribar/Desktop/projects/libft/libft.a ../pipex
+$(NAME): $(OBJS) pipex.h
+	@cd libft ; make ; make clean
+	@mv libft/libft.a .
 	$(AR) $(RCS) libft.a $(OBJS)
 	@mv libft.a $(NAME)
 
