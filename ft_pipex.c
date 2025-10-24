@@ -9,20 +9,10 @@ int main(int ac, char **argv, char **envp)
     char **cmd_args;
     pid_t id;
 
-    if (!ac)
-        return (0);
-    infile = open(argv[1], O_RDONLY | O_CREAT);
-    if (infile < 0)
-    {
-        perror("open");
-        return (0);
-    }
-    outfile = open(argv[4], O_WRONLY | O_CREAT);
-    if (outfile < 0)
-    {
-        perror("open");
-        return (0);
-    }
+    if ((infile = open(argv[1], O_RDONLY | O_CREAT)) < 0)
+        return (perror("open"), 0);
+    if ((outfile = open(argv[4], O_WRONLY | O_CREAT)) < 0)
+        return (perror("open"), 0);
     if (pipe(fdes) < 0)
     {
         perror("pipe");
