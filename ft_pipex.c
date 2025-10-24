@@ -4,12 +4,25 @@ int main(int ac, char **argv, char **envp)
 {
     int fdes[2];
     char *pathname;
-    int fd;
+    int infile;
+    int outfile;
     char **cmd_args;
     pid_t id;
 
     if (!ac)
         return (0);
+    infile = open(argv[1], O_RDONLY | O_CREAT);
+    if (infile < 0)
+    {
+        perror("open");
+        return (0);
+    }
+    outfile = open(argv[4], O_WRONLY | O_CREAT);
+    if (outfile < 0)
+    {
+        perror("open");
+        return (0);
+    }
     if (pipe(fdes) < 0)
     {
         perror("pipe");
@@ -20,33 +33,76 @@ int main(int ac, char **argv, char **envp)
     {
         close(fdes[0]);
         // fd = dup(STDOUT_FILENO);
+        dup2(infile, STDIN_FILENO);
         dup2(fdes[1], STDOUT_FILENO);
         pathname = ft_search_pathname(envp, argv[2]);
         cmd_args = ft_split(argv[2], ' ');
         close(fdes[1]);
+        // fd1 = open(argv[1], O_RDONLY | O_CREAT, 0644);
         // close(fdes[1]);
         // printf("This will be written\n");
         execve(pathname, cmd_args, envp);
         exit(0);
     }
-    else
+    id = fork();
+    if (id == 0)
     {
-        char buffer[1024];
         close(fdes[1]);
-        fd = open(argv[1], O_RDWR | O_CREAT);
-        dup2(fd, STDIN_FILENO);
-        while (read(fdes[0], buffer, sizeof(buffer)) != 0)
-            write(fd, buffer, sizeof(buffer));
-        close(fd);
+        // fd = dup(STDOUT_FILENO);
+        dup2(outfile, STDOUT_FILENO);
+        dup2(fdes[0], STDIN_FILENO);
+        pathname = ft_search_pathname(envp, argv[2]);
+        cmd_args = ft_split(argv[2], ' ');
         close(fdes[0]);
+        // fd1 = open(argv[1], O_RDONLY | O_CREAT, 0644);
+        // close(fdes[1]);
+        // printf("This will be written\n");
+        execve(pathname, cmd_args, envp);
+        exit(0);
     }
+    close(fdes[1]);
+    close(fdes[0]);
+    // else
+    // {
+    //     char buffer[1024];
+    //     close(fdes[0]);
+    //     dup2(fdes[1], STDOUT_FILENO);
+    //     close(fdes[1]);
+    //     while(write(STDOUT_FILENO, buffer, sizeof(buffer)) != 0)
+    //         printf("Si");
+
+    // }
     // id = fork();
     // if (id == 0)
     // {
-    //     dup(2)
+    //     char buffer[1024];
+    //     close(fdes[0]);
+    //     fd = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    //     dup2(fdes[1], STDOUT_FILENO);
+    //     pathname = ft_search_pathname(envp, argv[3]);
+    //     cmd_args = ft_split(argv[3], ' ');
+    //     close(fdes[1]);
+    //     // close(fdes[1]);
+    //     // printf("This will be written\n");
+    //     execve(pathname, cmd_args, envp);
+    //     while (read(fdes[1], buffer, sizeof(buffer)) != 0)
+    //         write(fd, buffer, sizeof(buffer));
+        
+    //     close(fd);
+    //     exit(0);
     // }
-    // waitpid(id);//Waits for first child to finish
+    // // id = fork();
+    // // if (id == 0)
+    // // {
+    // //     dup(2)
+    // // }
+    // // waitpid(id);//Waits for first child to finish
     // wait(&id);//Waits for second child to finish
+    // wait(&id);
+    // close(fdes[0]);
+    // close(fdes[1]);
+    waitpid(id,NULL, 0);
+    waitpid(id, NULL, 0);
     return (0);
 }
 // {
