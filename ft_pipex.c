@@ -1,15 +1,15 @@
 #include "pipex.h"
 #include <fcntl.h>
-int main(int argc, char **argv, char **envp)
+int main(int ac, char **argv, char **envp)
 {
     int fdes[2];
-    int fd;
     char *pathname;
+    int fd;
     char **cmd_args;
     pid_t id;
 
-    fd = open("infile", O_RDONLY);
-    (void)argc;
+    if (!ac)
+        return (0);
     if (pipe(fdes) < 0)
     {
         perror("pipe");
@@ -19,12 +19,26 @@ int main(int argc, char **argv, char **envp)
     if (id == 0)
     {
         close(fdes[0]);
-        fdes[1]= dup(0);
-        pathname = ft_search_pathname(envp, argv[1]);
-        cmd_args = ft_split(argv[1], ' ');
-        execve(pathname, cmd_args, envp);
+        // fd = dup(STDOUT_FILENO);
+        dup2(fdes[1], STDOUT_FILENO);
+        pathname = ft_search_pathname(envp, argv[2]);
+        cmd_args = ft_split(argv[2], ' ');
         close(fdes[1]);
+        // close(fdes[1]);
+        // printf("This will be written\n");
+        execve(pathname, cmd_args, envp);
         exit(0);
+    }
+    else
+    {
+        char buffer[1024];
+        close(fdes[1]);
+        fd = open(argv[1], O_RDWR | O_CREAT);
+        dup2(fd, STDIN_FILENO);
+        while (read(fdes[0], buffer, sizeof(buffer)) != 0)
+            write(fd, buffer, sizeof(buffer));
+        close(fd);
+        close(fdes[0]);
     }
     // id = fork();
     // if (id == 0)
@@ -32,7 +46,7 @@ int main(int argc, char **argv, char **envp)
     //     dup(2)
     // }
     // waitpid(id);//Waits for first child to finish
-    wait(&id);//Waits for second child to finish
+    // wait(&id);//Waits for second child to finish
     return (0);
 }
 // {
