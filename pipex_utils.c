@@ -23,39 +23,37 @@ char *ft_check_routes(char **envp)
     return (NULL);
 }
 
-char *ft_search_pathname(char **envp, char *argv)
+char *ft_search_pathname(char **envp, char *cmd)
 {
-	char *path;
-	char **pathname;
-	char **argv_split;
-	int  i;
+	char *temp;
+	char **dirs;
+	char **cmds;
+	char *candidate;
+	char *full_path;
 
-	i = 0;
-	argv_split = ft_split(argv, ' ');
-	path = ft_check_routes(envp);
-	pathname = ft_split(path, ':');
-	while (pathname[i])
+	temp = ft_check_routes(envp);
+	dirs = ft_split(temp, ':');
+	cmds = ft_split(cmd, ' ');
+	if (!dirs || !cmds || !cmds[0])
+		return (NULL);
+	while (*dirs)
 	{
-		pathname[i] = ft_strjoin(pathname[i], "/");
-		pathname[i] = ft_strjoin(pathname[i], argv_split[0]);
-		i++;
+		temp = ft_strjoin(*dirs, '/');
+		candidate = ft_strjoin(temp, cmd[0]);
+		if (candidate && ft_check_access(candidate))	
+		{
+			full_path = candidate;
+			return (free(candidate), full_path);
+		}	
+		free(candidate);
+		dirs++;
 	}
-	i = 0;
-	while (pathname[i])
-	{
-		if (ft_check_access(pathname[i]) == 0)
-			return (pathname[i]);
-		i++;
-	}
-	return (NULL);
+	return (full_path);
 }
 
-int	ft_file_exists(int ac, char **argv)
+int	ft_file_exists(char **argv)
 {
-	if (ft_check_access(argv[1]) == -1 || ft_check_access(argv[ac - 1])== -1)
-	{
-		ft_printf("errno: %s", strerror(errno));
-		exit(-1);
-	}
-	return (-1);
+	if (ft_check_access(argv[1]) == -1)
+		return (ft_printf("%s: %s\n", strerror(errno), argv[1]), 0);
+	return (1);
 }

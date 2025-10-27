@@ -4,7 +4,7 @@ FLAGS		:= -Wall -Wextra -Werror -g -I.
 RM			:= rm -f 
 AR			:= ar
 RCS			:= rcs
-SRCS		:= ft_pipex.c pipex_utils.c
+SRCS		:= pipex.c pipex_utils.c
 
 OBJS		:= $(SRCS:.c=.o)
 
@@ -15,6 +15,7 @@ $(NAME): $(OBJS) pipex.h
 	@mv libft/libft.a .
 	$(AR) $(RCS) libft.a $(OBJS)
 	@mv libft.a $(NAME)
+	@cc $(NAME) -o pipex
 
 %.o:%.c
 	$(CC) $(FLAGS) -c $< -o $@
@@ -28,5 +29,5 @@ fclean:		clean
 re: fclean all
 
 
-.PHONY = all clean fclean re 
+.PHONY = all clean fclean re
 
