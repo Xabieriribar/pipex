@@ -26,6 +26,13 @@ typedef struct s_list
 
 int		ft_atoi(const char *nptr);
 void	ft_bzero(void *s, size_t n);
+int		ft_printf(const char *format, ...);
+int		ft_putchar(char c);
+int		ft_putstr(char *str);
+int		ft_putu_base(unsigned int value, char *base);
+int		ft_putptr_base(unsigned long value, char *base, int flag);
+int		ft_putd_base(int value, char *base);
+int		ft_putnstr(char *str, size_t strlen);
 void	*ft_calloc(size_t nmemb, size_t size);
 int		ft_isalnum(int c);
 int		ft_isalpha(int c);

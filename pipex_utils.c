@@ -49,3 +49,13 @@ char *ft_search_pathname(char **envp, char *argv)
 	}
 	return (NULL);
 }
+
+int	ft_file_exists(int ac, char **argv)
+{
+	if (ft_check_access(argv[1]) == -1 || ft_check_access(argv[ac - 1])== -1)
+	{
+		ft_printf("errno: %s", strerror(errno));
+		exit(-1);
+	}
+	return (-1);
+}

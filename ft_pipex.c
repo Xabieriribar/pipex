@@ -9,6 +9,10 @@ int main(int ac, char **argv, char **envp)
     char **cmd_args;
     pid_t id;
 
+    if (ac != 5)
+        return (0);
+    if (!ft_file_exists(ac, argv))
+        return (0);
     if ((infile = open(argv[1], O_RDONLY | O_CREAT)) < 0)
         return (perror("open"), 0);
     if ((outfile = open(argv[4], O_WRONLY | O_CREAT)) < 0)
