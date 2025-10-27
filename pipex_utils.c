@@ -30,23 +30,26 @@ char *ft_search_pathname(char **envp, char *cmd)
 	char **cmds;
 	char *candidate;
 	char *full_path;
+	int i;
 
+	i = 0;
+	full_path = NULL;
 	temp = ft_check_routes(envp);
 	dirs = ft_split(temp, ':');
 	cmds = ft_split(cmd, ' ');
 	if (!dirs || !cmds || !cmds[0])
-		return (NULL);
-	while (*dirs)
+		return (printf("wHAT"), NULL);
+	while (dirs[i])
 	{
-		temp = ft_strjoin(*dirs, '/');
-		candidate = ft_strjoin(temp, cmd[0]);
-		if (candidate && ft_check_access(candidate))	
+		temp = ft_strjoin(dirs[i], "/");
+		candidate = ft_strjoin(temp, cmds[0]);
+		if (candidate && ft_check_access(candidate) == 0)	
 		{
 			full_path = candidate;
 			return (free(candidate), full_path);
 		}	
 		free(candidate);
-		dirs++;
+		i++;
 	}
 	return (full_path);
 }
