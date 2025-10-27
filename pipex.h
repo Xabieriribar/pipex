@@ -28,6 +28,7 @@ char	*ft_strjoin(char const *s1, char const *s2);
 char *ft_search_pathname(char **envp, char *cmd);
 char	*ft_strnstr(const char *haystack, const char *needle, size_t len);
 void	ft_putstr_fd(char *s, int fd);
+char	*ft_strdup(const char *s);
 void	ft_putendl_fd(char *s, int fd);
 int	ft_printf(const char *format, ...);
 int	ft_file_exists(char **argv);

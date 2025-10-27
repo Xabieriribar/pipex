@@ -45,7 +45,7 @@ char *ft_search_pathname(char **envp, char *cmd)
 		candidate = ft_strjoin(temp, cmds[0]);
 		if (candidate && ft_check_access(candidate) == 0)	
 		{
-			full_path = candidate;
+			full_path = ft_strdup(candidate);
 			return (free(candidate), full_path);
 		}	
 		free(candidate);
