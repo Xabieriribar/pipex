@@ -1,5 +1,23 @@
 #include "pipex.h"
 
+int	ft_parse_input(int **infile, int **outfile, int ac, char **argv)
+{
+	while (ac != 5)
+		return (perror("Introduce at 4 arguments."), 0);
+	**infile = open(argv[1], O_RDONLY, 0644);
+	if (**infile < 0)
+	{
+		perror("Open failed");
+	}
+	**outfile = open(argv[1], O_RDONLY, 0644);
+	if (**outfile < 0)
+	{
+		return (perror("Open failed"), 0);
+	}
+	else
+		return (1);
+}
+
 static void	free_splits(char **strs)
 {
 	size_t	index;
