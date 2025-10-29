@@ -22,6 +22,15 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#ifndef READ 
+#define READ 0
+#endif
+
+#ifndef WRITE
+#define WRITE 1
+#endif
+
+static void	free_splits(char **strs);
 int ft_check_access(char *pathname);
 char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);
