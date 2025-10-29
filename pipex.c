@@ -104,6 +104,7 @@ int main(int ac, char **argv, char **envp)
     char *pathname;
     int status;
     char **cmd_args;
+    int execve_return;
     pid_t id;
     pid_t id2;
 
@@ -169,7 +170,11 @@ int main(int ac, char **argv, char **envp)
             exit(127);
         }
         close(fdes[0]);
-        if (execve(pathname, cmd_args, envp) == -1)
+
+        
+        execve_return = execve(pathname, cmd_args, envp)
+        if (execve_return < 0)
+            ft_handle_execve_error(pathname, cmd_args);
         {
             free(pathname);
             free_splits(cmd_args);
