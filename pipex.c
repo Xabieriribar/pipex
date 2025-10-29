@@ -98,30 +98,27 @@
 // }
 int main(int ac, char **argv, char **envp)
 {
-    int *infile;
-    int *outfile;
+    int infile;
+    int outfile;
     int fdes[2];
     char *pathname;
     int status;
     char **cmd_args;
-    int execve_return;
     pid_t id;
     pid_t id2;
 
     if (!ft_parse_input(&infile, &outfile, ac, argv))
-    if (pipe(fdes) < 0)
-    {
-        perror("pipe");
-        return (-2);
-    }
-    if (*infile >= 0)
+        return (1);
+    if (!ft_initialise_pipes(fdes))
+        return (1);
+    if (infile >= 0)
     {
         id = fork();
         if (id == 0)
         {
             // run_child(infile, fdes, READ)
             close(fdes[0]);
-            dup2(*infile, STDIN_FILENO);
+            dup2(infile, STDIN_FILENO);
             dup2(fdes[1], STDOUT_FILENO);
             cmd_args = ft_split(argv[2], ' ');
             pathname = ft_search_pathname(envp, cmd_args[0]);
@@ -147,7 +144,7 @@ int main(int ac, char **argv, char **envp)
     {
         // run_child(outfile, fdes, WRITE);
         close(fdes[1]);
-        dup2(*outfile, STDOUT_FILENO);
+        dup2(outfile, STDOUT_FILENO);
         dup2(fdes[0], STDIN_FILENO);
         cmd_args = ft_split(argv[3], ' ');
         pathname = ft_search_pathname(envp, cmd_args[0]);
@@ -158,11 +155,7 @@ int main(int ac, char **argv, char **envp)
             exit(127);
         }
         close(fdes[0]);
-
-        
-        execve_return = execve(pathname, cmd_args, envp)
-        if (execve_return < 0)
-            ft_handle_execve_error(pathname, cmd_args);
+        if (execve(pathname, cmd_args, envp) < 0)
         {
             free(pathname);
             free_splits(cmd_args);
@@ -172,7 +165,7 @@ int main(int ac, char **argv, char **envp)
     }
     close(fdes[1]);
     close(fdes[0]);
-    if (*infile >= 0)
+    if (infile >= 0)
         waitpid(id, &status, 0);
     waitpid(id2, &status, 0);
     if (WIFEXITED(status))
