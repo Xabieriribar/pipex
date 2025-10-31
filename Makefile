@@ -3,7 +3,7 @@ CC      := cc
 FLAGS   := -Wall -Wextra -Werror -g -I.
 RM      := rm -f
 
-SRCS    := pipex.c pipex_utils.c
+SRCS    := pipex.c pipex_utils.c parser.c
 OBJS    := $(SRCS:.c=.o)
 
 all: $(NAME)

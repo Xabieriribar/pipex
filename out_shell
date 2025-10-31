@@ -1,0 +1,22 @@
+total 4096
+-rwxr-xr-x 1 xiribar 2025_lausanne     190 Oct 31 17:18 caca
+-rwxr-xr-x 1 xiribar 2025_lausanne      34 Oct 31 17:03 emptyfile
+-rwxr-xr-x 1 xiribar 2025_lausanne      21 Oct 31 17:02 infile
+drwxr-xr-x 2 xiribar 2025_lausanne  131072 Oct 31 17:14 libft
+-rwxr-xr-x 1 xiribar 2025_lausanne     449 Oct 31 16:55 Makefile
+-rwxr-xr-x 1 xiribar 2025_lausanne      36 Oct 31 17:02 otherfile
+-rwxr-xr-x 1 xiribar 2025_lausanne     185 Oct 31 17:18 outfile
+-rwxr-xr-x 1 xiribar 2025_lausanne       0 Oct 31 17:19 out_shell
+-rwxr-xr-x 1 xiribar 2025_lausanne    1870 Oct 31 16:37 parser.c
+-rwxr-xr-x 1 xiribar 2025_lausanne    5096 Oct 31 17:14 parser.o
+-rwxr-xr-x 1 xiribar 2025_lausanne   29048 Oct 31 17:14 pipex
+-rwxr-xr-x 1 xiribar 2025_lausanne    2360 Oct 31 16:44 pipex.c
+-rwxr-xr-x 1 xiribar 2025_lausanne    1743 Oct 31 16:55 pipex.h
+-rwxr-xr-x 1 xiribar 2025_lausanne    5896 Oct 31 17:14 pipex.o
+-rwxr-xr-x 1 xiribar 2025_lausanne 1601006 Oct 29 16:16 pipex.pdf
+-rwxr-xr-x 1 xiribar 2025_lausanne    2060 Oct 31 17:12 pipex_utils.c
+-rwxr-xr-x 1 xiribar 2025_lausanne    5696 Oct 31 17:14 pipex_utils.o
+-rwxr-xr-x 1 xiribar 2025_lausanne       2 Oct 31 16:54 shell_out.txt
+-rwxr-xr-x 1 xiribar 2025_lausanne      63 Oct 31 16:54 test_in.txt
+-rwxr-xr-x 1 xiribar 2025_lausanne       2 Oct 31 16:55 test_out.txt
+-rwxr-xr-x 1 xiribar 2025_lausanne   17253 Oct 31 17:18 test.txt
