@@ -1,8 +1,6 @@
 #include "pipex.h"
-#include "pipex_utils.c"
-#include "stdio.h"
 
-void    ft_exec_read_child(int fdes[], char **argv, char **envp, int *infile)
+void    ft_exec_read_child(int fdes[2], char **argv, char **envp, int *infile)
 {
     char *pathname;
     char **cmd_args;
@@ -18,22 +16,35 @@ void    ft_exec_read_child(int fdes[], char **argv, char **envp, int *infile)
         ft_handle_exit("Execve failed", cmd_args, pathname);
 }
 
+void ft_exec_write_child(int fdes[], char **argv, char **envp, int *outfile)
+{
+    char *pathname;
+    char **cmd_args;
+
+    close(fdes[1]);
+    dup2(*outfile, STDOUT_FILENO);
+    dup2(fdes[0], STDIN_FILENO);
+    ft_get_execve_args(&cmd_args, &pathname, argv[3], envp);
+    if (!pathname)
+        ft_handle_exit("Pathname failed", cmd_args, pathname);
+    close(fdes[0]);
+    if (execve(pathname, cmd_args, envp) == -1)
+        ft_handle_exit("Execve failed", cmd_args, pathname);
+}
+
 int main(int ac, char **argv, char **envp)
 {
     int infile;
     int outfile;
     int fdes[2];
-    char *pathname;
     int status;
-    char **cmd_args;
     pid_t id;
     pid_t id2;
 
-    if (!ft_parse_input(&infile, &outfile, ac, argv))
+    if (!ft_parse_input(&infile, &outfile, ac, argv) 
+        || !ft_initialise_pipes(fdes))
         return (1);
-    if (!ft_initialise_pipes(fdes))
-        return (1);
-    if (infile >= 0)
+    if (infile != -1)
     {
         id = fork();
         if (id == 0)
@@ -41,19 +52,8 @@ int main(int ac, char **argv, char **envp)
     }
     id2 = fork();
     if (id2 == 0)
-    {
-        close(fdes[1]);
-		dup2(outfile, STDOUT_FILENO);
-		dup2(fdes[0], STDIN_FILENO);
-        ft_get_execve_args(&cmd_args, &pathname, argv[3], envp);
-        if (!pathname)
-            ft_handle_exit("Path failed", cmd_args, NULL);
-        close(fdes[0]);
-        if (execve(pathname, cmd_args, envp) < 0)
-            ft_handle_exit("Execve failed", cmd_args, pathname);
-    }
-    close(fdes[1]);
-    close(fdes[0]);
+        ft_exec_write_child(fdes, argv, envp, &outfile);
+    ft_close_fdes(fdes);
     if (infile >= 0)
         waitpid(id, &status, 0);
     waitpid(id2, &status, 0);

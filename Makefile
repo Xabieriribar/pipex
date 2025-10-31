@@ -1,32 +1,28 @@
-NAME		:= pipex.a 
-CC			:= cc 
-FLAGS		:= -Wall -Wextra -Werror -g -I.  
-RM			:= rm -f 
-AR			:= ar
-RCS			:= rcs
-SRCS		:= pipex.c pipex_utils.c
+NAME    := pipex
+CC      := cc
+FLAGS   := -Wall -Wextra -Werror -g -I.
+RM      := rm -f
 
-OBJS		:= $(SRCS:.c=.o)
+SRCS    := pipex.c pipex_utils.c
+OBJS    := $(SRCS:.c=.o)
 
-all:	$(NAME) 
+all: $(NAME)
 
-$(NAME): $(OBJS) pipex.h
-	@cd libft ; make ; make clean
-	@mv libft/libft.a .
-	$(AR) $(RCS) libft.a $(OBJS)
-	@mv libft.a $(NAME)
-	@cc $(NAME) -o pipex
+$(NAME): $(OBJS)
+	@cd libft ; make
+	$(CC) $(FLAGS) $(OBJS) libft/libft.a -o $(NAME)
 
-%.o:%.c
+%.o: %.c pipex.h
 	$(CC) $(FLAGS) -c $< -o $@
 
 clean:
-	$(RM) $(OBJS) $(OBJS_BONUS)
+	$(RM) $(OBJS)
+	@cd libft && make clean
 
-fclean:		clean
-		$(RM) $(NAME)
+fclean: clean
+	$(RM) $(NAME)
+	@cd libft && make fclean
 
 re: fclean all
 
-.PHONY = all clean fclean re
-
+.PHONY: all clean fclean re
