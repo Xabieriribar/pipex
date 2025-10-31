@@ -144,4 +144,3 @@ void	ft_close_fdes(int *fdes1, int *fdes2, int mode)
 	else if (mode == READ)
 		close(*fdes2);
 }
-int	ft_dup_it

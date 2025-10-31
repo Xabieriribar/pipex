@@ -2,6 +2,22 @@
 #include "pipex_utils.c"
 #include "stdio.h"
 
+void    ft_exec_read_child(int fdes[], char **argv, char **envp, int *infile)
+{
+    char *pathname;
+    char **cmd_args;
+
+    close(fdes[0]);
+    dup2(*infile, STDIN_FILENO);
+    dup2(fdes[1], STDOUT_FILENO);
+    ft_get_execve_args(&cmd_args, &pathname, argv[2], envp);
+    if (!pathname)
+        ft_handle_exit("Pathname failed", cmd_args, pathname);
+    close(fdes[1]);
+    if (execve(pathname, cmd_args, envp) == -1)
+        ft_handle_exit("Execve failed", cmd_args, pathname);
+}
+
 int main(int ac, char **argv, char **envp)
 {
     int infile;
@@ -21,18 +37,7 @@ int main(int ac, char **argv, char **envp)
     {
         id = fork();
         if (id == 0)
-        {
-            close(fdes[0]);
-            infile = ft_dup_it(infile);
-            dup2(infile, STDIN_FILENO);
-            dup2(fdes[1], STDOUT_FILENO);
-            ft_get_execve_args(&cmd_args, &pathname, argv[2], envp);
-            if (!pathname)
-                ft_handle_exit("Pathname failed", cmd_args, pathname);
-            close(fdes[1]);
-            if (execve(pathname, cmd_args, envp) == -1)
-                ft_handle_exit("Execve failed", cmd_args, pathname);
-        }
+            ft_exec_read_child(fdes, argv, envp, &infile);
     }
     id2 = fork();
     if (id2 == 0)
