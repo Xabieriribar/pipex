@@ -30,6 +30,9 @@
 #define WRITE 1
 #endif
 
+#ifndef BOTH
+#define BOTH 2
+#endif
 static void	free_splits(char **strs);
 int ft_check_access(char *pathname);
 char	**ft_split(char const *s, char c);
@@ -42,5 +45,6 @@ int	ft_parse_input(int *infile, int *outfile, int ac, char **argv);
 int ft_initialise_pipes(int fdes[]);
 void	ft_putendl_fd(char *s, int fd);
 int	ft_printf(const char *format, ...);
+void	ft_dup_it(int file, int *fdes, int mode);
 int	ft_file_exists(char **argv);
 #endif

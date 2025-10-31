@@ -1,5 +1,20 @@
 #include "pipex.h"
 
+// void	ft_dup_it(int file, int *fdes, int mode)
+// {
+// 	if (mode == 1)
+// 	{
+//             dup2(file, STDIN_FILENO);
+//             dup2(fdes[1], STDOUT_FILENO);
+// 	}
+// 	else if (mode == 0)
+// 	{
+// 		dup2(file, STDOUT_FILENO);
+// 		dup2(fdes[0], STDIN_FILENO);
+// 	}
+
+// }
+
 int	ft_parse_input(int *infile, int *outfile, int ac, char **argv)
 {
 	if (ac != 5)
@@ -102,3 +117,31 @@ int	ft_file_exists(char **argv)
 //         ft_search_pathname(envp, argv[2], &pathname);
 //         cmd_args = ft_split(argv[2], ' ');
 // }
+void	ft_get_execve_args(char ***cmd_args, char **pathname, char *cmd, char **envp)
+{
+	*cmd_args = ft_split(cmd, ' ');
+	*pathname = ft_search_pathname(envp, *cmd_args[0]);
+}
+void	ft_handle_exit(char *str, char **cmd_args, char *pathname)
+{
+	if (pathname != NULL)
+		free(pathname);
+	perror(str);
+	free_splits(cmd_args);
+	exit(127);
+}
+void	ft_close_fdes(int *fdes1, int *fdes2, int mode)
+{
+	if (mode == BOTH)
+	{
+		close(*fdes1);
+		close(*fdes2);
+	}
+	else if (mode == WRITE)
+	{
+		close(*fdes1);
+	}
+	else if (mode == READ)
+		close(*fdes2);
+}
+int	ft_dup_it
