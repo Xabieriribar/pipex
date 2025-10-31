@@ -65,12 +65,30 @@ char	*ft_search_pathname(char **envp, char *cmd)
 
 void	ft_execve_args(char ***cmds, char **path, char *cmd, char **envp)
 {
-	*cmds = ft_split(cmd, ' ');
+	char	**divide;
+	int		i;
+
+	i = 0;
 	if (*cmd == '/')
 	{
-		*path = ft_strdup(cmd);
-		return ;
+		if (ft_check_access(cmd) == 0)
+		{
+
+			divide = ft_split(cmd, '/');
+			while(divide[i])
+				i++;
+			*cmds = ft_split(divide[i - 1], ' ');
+			*path = ft_strdup(cmd);
+			return ;
+		}
+		else
+		{
+			*path = NULL;
+			return ;
+		}
 	}
+	divide = NULL;
+	*cmds = ft_split(cmd, ' ');
 	*path = ft_search_pathname(envp, *cmds[0]);
 }
 
