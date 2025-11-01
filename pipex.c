@@ -19,10 +19,9 @@ void	ft_exec_read_child(int fdes[2], char **argv, char **envp, int *infile)
 
 	close(fdes[0]);
 	dup2(*infile, STDIN_FILENO);
+	close(*infile);
 	dup2(fdes[1], STDOUT_FILENO);
 	ft_execve_args(&cmd_args, &pathname, argv[2], envp);
-	// if (!pathname)
-	// 	ft_handle_exit(pathname, cmd_args, pathname);
 	close(fdes[1]);
 	if (execve(pathname, cmd_args, envp) == -1)
 		ft_handle_exit(argv[2], cmd_args, pathname);
@@ -35,10 +34,9 @@ void	ft_exec_write_child(int fdes[], char **argv, char **envp, int *outfile)
 
 	close(fdes[1]);
 	dup2(*outfile, STDOUT_FILENO);
+	close(*outfile);
 	dup2(fdes[0], STDIN_FILENO);
 	ft_execve_args(&cmd_args, &pathname, argv[3], envp);
-	// if (!pathname)
-	// 	ft_handle_exit(argv[3], cmd_args, pathname);
 	close(fdes[0]);
 	if (execve(pathname, cmd_args, envp) == -1)
 		ft_handle_exit(argv[3], cmd_args, pathname);
@@ -55,7 +53,7 @@ int	main(int ac, char **argv, char **envp)
 	if (!ft_parse_input(&infile, &outfile, ac, argv)
 		|| !ft_initialise_pipes(fdes))
 		return (1);
-	if (infile != -1 && argv[2][0] != '\0')
+	if (infile != -1)
 	{
 		id = fork();
 		if (id == 0)

@@ -71,7 +71,6 @@ void	ft_execve_args(char ***cmds, char **path, char *cmd, char **envp)
 	i = 0;
 	if (*cmd == '/')
 	{
-
 		divide = ft_split(cmd, ' ');
 		if (ft_check_access(divide[0]) == 0)
 		{
