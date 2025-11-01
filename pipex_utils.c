@@ -71,18 +71,17 @@ void	ft_execve_args(char ***cmds, char **path, char *cmd, char **envp)
 	i = 0;
 	if (*cmd == '/')
 	{
-		if (ft_check_access(cmd) == 0)
-		{
 
-			divide = ft_split(cmd, '/');
-			while(divide[i])
-				i++;
-			*cmds = ft_split(divide[i - 1], ' ');
-			*path = ft_strdup(cmd);
+		divide = ft_split(cmd, ' ');
+		if (ft_check_access(divide[0]) == 0)
+		{
+			*path = divide[0];
+			*cmds = ft_split(cmd, ' ');
 			return ;
 		}
 		else
 		{
+			*cmds = NULL;
 			*path = NULL;
 			return ;
 		}

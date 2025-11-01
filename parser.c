@@ -14,18 +14,26 @@
 
 int	ft_parse_input(int *infile, int *outfile, int ac, char **argv)
 {
+	int i;
+
+	i = 0;
 	if (ac != 5)
 		return (perror("Introduce at 4 arguments."), 0);
 	*infile = open(argv[1], O_RDONLY, 0644);
 	if (*infile < 0)
 	{
-		perror("Open failed");
+		while (argv[1][i])
+		{
+			write(2, &argv[1][i], 1);
+			i++;
+		}
+		write(2, ":", 1);
+		write(2, " ", 1);
+		perror(NULL);
 	}
 	*outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (*outfile < 0)
-	{
 		return (perror("Open failed"), 0);
-	}
 	return (1);
 }
 
