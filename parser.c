@@ -40,10 +40,20 @@ int	ft_parse_input(int *infile, int *outfile, int ac, char **argv)
 	return (1);
 }
 
-int	ft_initialise_pipes(int fdes[])
+/*
+This function takes the file descriptors and the number of arguments the user introduced and opens n - 2 pipes using the pipe function. For example, if we have an input of ./pipex infile cat cat cat hostname, since the number of arguments (ac)
+is 5, it will open 5 - 2 pipes*/
+int	ft_initialise_pipes(int fdes[], int ac)
 {
-	if (pipe(fdes) < 0)
-		return (perror("Pipe failed"), 0);
+	int i;
+
+	i = 0;
+	while (i < ac - 2)
+	{
+		if (pipe(fdes + i) < 0)
+			return (perror("Pipe failed"), 0);
+		i += 2;
+	}
 	return (1);
 }
 
