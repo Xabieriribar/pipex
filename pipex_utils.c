@@ -90,8 +90,11 @@ void	ft_execve_args(char ***cmds, char **path, char *cmd, char **envp)
 	*path = ft_search_pathname(envp, *cmds[0]);
 }
 
-void	ft_close_fdes(int fdes[2])
+void	ft_close_fdes(int fdes[], int ac)
 {
-	close(fdes[0]);
-	close(fdes[1]);
+	int i;
+	
+	i = 0;
+	while (i < (ac - 2) * 2)
+		close(fdes[i++]);
 }

@@ -11,8 +11,9 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include <stdio.h>
 
-void	ft_exec_read_child(int fdes[2], char **argv, char **envp, int *infile)
+void	ft_exec_read_child(int fdes[], char **argv, char **envp, int *infile)
 {
 	char	*pathname;
 	char	**cmd_args;
@@ -46,27 +47,85 @@ int	main(int ac, char **argv, char **envp)
 {
 	int		infile;
 	int		outfile;
-	int		fdes[2];
+	char	*pathname;
+	char	**cmd_args;
+	int		fdes[(ac - 4) * 2];
+	int j;
 	int		status;
+	int		i;
 	pid_t	id;
+	int		k;
 
+	j = 0;
+	i = 2;
 	if (!ft_parse_input(&infile, &outfile, ac, argv)
-		|| !ft_initialise_pipes(fdes))
+		|| !ft_initialise_pipes(fdes, ac))
 		return (1);
-	if (infile != -1)
+	j = 0;
+	while (i < ac - 1)
 	{
 		id = fork();
 		if (id == 0)
-			ft_exec_read_child(fdes, argv, envp, &infile);
+		{
+			if (i != ac - 2)
+			{
+				if (dup2(fdes[j + 1], STDOUT_FILENO) < 0)
+				{
+					perror("Dup failed");
+					exit(EXIT_FAILURE);
+				}
+				if (j == 0)
+				{
+					if (dup2(infile, STDIN_FILENO) < 0)
+					{
+						perror("Dup failed");
+						exit(EXIT_FAILURE);
+					}
+					close(infile);
+				}
+			}
+			if (i == 0)
+			{
+				if (dup2(fdes[j - 2], STDIN_FILENO) < 0)
+				{
+					perror("Dup failed");
+					exit(EXIT_FAILURE);
+				}
+				if (j == ac - 2)
+				{
+					if (dup2(outfile, STDOUT_FILENO) < 0)
+					{
+						perror("Dup failed");
+						exit(EXIT_FAILURE);
+					}
+					close(outfile);
+				}
+			}
+			k = 0;
+			while (k < ac - 2)
+				close(fdes[k++]);
+			ft_execve_args(&cmd_args, &pathname, argv[i], envp);
+			if (execve(pathname, cmd_args, envp) == -1)
+				ft_handle_exit(argv[i], cmd_args, pathname);
+		}
+		else
+		{
+			perror("Fork failed");
+			exit(EXIT_FAILURE);
+		}
+		j += 2;
+		i++;
 	}
-	id = fork();
-	if (id == 0)
-		ft_exec_write_child(fdes, argv, envp, &outfile);
-	ft_close_fdes(fdes);
-	if (infile >= 0)
+	ft_close_fdes(fdes, ac);
+	i = 0;
+	while (i < ac - 2)
+	{
+		printf("Waiting for %d child\n", id);
 		waitpid(id, &status, 0);
-	waitpid(id, &status, 0);
-	if (WIFEXITED(status))
-		return (WEXITSTATUS(status));
+		i++;
+		if (i == ac - 1)
+			if (WIFEXITED(status))
+				return (WEXITSTATUS(status));
+	}
 	exit(EXIT_SUCCESS);
 }

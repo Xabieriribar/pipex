@@ -17,7 +17,7 @@ int	ft_parse_input(int *infile, int *outfile, int ac, char **argv)
 	int	i;
 
 	i = 0;
-	if (ac != 5)
+	if (ac == 100)
 	{
 		write(2, "Usage: ./pipex file1 cmd1 cmd2 file2", 36);
 		return (write(2, "\n", 1), 0);
