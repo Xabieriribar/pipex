@@ -45,6 +45,7 @@ void	ft_exec_write_child(int fdes[], char **argv, char **envp, int *outfile)
 
 int	main(int ac, char **argv, char **envp)
 {
+	int		k;
 	int		infile;
 	int		outfile;
 	char	*pathname;
@@ -66,10 +67,6 @@ int	main(int ac, char **argv, char **envp)
 		id = fork();
 		if (id == 0)
 		{
-			if (j != 0)
-				close(fdes[i - 1]);
-			else
-				close(fdes[i - 2]);
 			if (i != ac - 2)
 			{
 				if (j == 0)
@@ -104,12 +101,9 @@ int	main(int ac, char **argv, char **envp)
 					exit(EXIT_FAILURE);
 				}
 			}
-			if (j == 0)
-				close(fdes[i - 1]);
-			else
-				close(fdes[i - 2]);
-			// while (k < ac - 2)
-			// 	close(fdes[k++]);
+			k = 0;
+			while (k < i)
+				close(fdes[k++]);
 			ft_execve_args(&cmd_args, &pathname, argv[i], envp);
 			if (execve(pathname, cmd_args, envp) == -1)
 				ft_handle_exit(argv[i], cmd_args, pathname);
@@ -129,7 +123,7 @@ int	main(int ac, char **argv, char **envp)
 		printf("Waiting for %d child\n", id);
 		waitpid(id, &status, 0);
 		i++;
-		if (i == ac - 1)
+		if (i == ac - 2)
 			if (WIFEXITED(status))
 				return (WEXITSTATUS(status));
 	}

@@ -1,0 +1,296 @@
+# Create a comprehensive Pipex bonus "many pipes" test script.
+script = r"""#!/usr/bin/env bash
+# pipex_bonus_many_pipes_tests.sh
+# Tests for 42 pipex bonus, part 1: multiple pipes.
+# Usage: PIPEX=./pipex bash pipex_bonus_many_pipes_tests.sh
+# or:    bash pipex_bonus_many_pipes_tests.sh /path/to/pipex
+
+set -uo pipefail
+
+# Resolve pipex binary
+PIPEX_BIN="${PIPEX:-${1:-./pipex}}"
+shift || true
+
+if [[ ! -x "$PIPEX_BIN" ]]; then
+  echo "Error: pipex binary '$PIPEX_BIN' not found or not executable."
+  echo "Usage: PIPEX=/path/to/pipex bash $(basename "$0")"
+  exit 2
+fi
+
+# timeout helper (support macOS coreutils gtimeout or plain timeout; no-timeout fallback)
+TIMEOUT=""
+if command -v timeout >/dev/null 2>&1; then
+  TIMEOUT="timeout 7s"
+elif command -v gtimeout >/dev/null 2>&1; then
+  TIMEOUT="gtimeout 7s"
+fi
+
+# temp workspace
+WORKDIR="$(mktemp -d -t pipex_bonus_tests.XXXXXX)"
+DATA="$WORKDIR/data"
+OUT="$WORKDIR/out"
+LOG="$WORKDIR/log"
+mkdir -p "$DATA" "$OUT" "$LOG"
+
+# colors
+RED="$(printf '\033[31m')"
+GRN="$(printf '\033[32m')"
+YEL="$(printf '\033[33m')"
+NC="$(printf '\033[0m')"
+
+pass_count=0
+fail_count=0
+
+finish() {
+  echo
+  echo "Summary: ${GRN}${pass_count} passed${NC}, ${RED}${fail_count} failed${NC}"
+  echo "Workspace: $WORKDIR"
+  # do not auto-remove; user may want to inspect
+  if (( fail_count > 0 )); then exit 1; else exit 0; fi
+}
+trap finish EXIT
+
+# data fixtures
+cat > "$DATA/lorem.txt" <<'EOF'
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+EOF
+
+# file without trailing newline
+printf "abc123" > "$DATA/no_newline.txt"
+
+# large text (100k numbers)
+awk 'BEGIN{for(i=1;i<=100000;i++) print i}' > "$DATA/numbers.txt"
+
+# utf-8
+printf "mañana\nüber\nfaçade\nnaïve\n" > "$DATA/utf8.txt"
+
+# empty
+: > "$DATA/empty.txt"
+
+# permission fixtures
+cp "$DATA/lorem.txt" "$DATA/no_read.txt"; chmod 000 "$DATA/no_read.txt"
+: > "$DATA/no_write.txt"; chmod 444 "$DATA/no_write.txt"
+mkdir -p "$DATA/locked_dir"; chmod 000 "$DATA/locked_dir"
+
+# helper: run one case
+run_case() {
+  local desc="$1"; shift
+  local infile="$1"; shift
+
+  # collect cmds until sentinel ---
+  local cmds=()
+  while [[ "${1:-}" != "---" && "$#" -gt 0 ]]; do
+    cmds+=("$1")
+    shift
+  done
+  if [[ "${1:-}" != "---" ]]; then
+    echo "Internal error: missing '---' before outfile in case '$desc'."
+    exit 99
+  fi
+  shift  # consume ---
+  local outfile="$1"; shift || true
+
+  local CASEDIR="$WORKDIR/$(printf "%03d" $((pass_count+fail_count+1)))"
+  mkdir -p "$CASEDIR"
+  local ref="$CASEDIR/ref.out"
+  local ref_err="$CASEDIR/ref.err"
+  local ppx_out_capture="$CASEDIR/ppx.stdout"   # pipex should not write to stdout
+  local ppx_err="$CASEDIR/ppx.err"
+
+  # build shell pipeline
+  local pipeline=""
+  for c in "${cmds[@]}"; do
+    if [[ -z "$pipeline" ]]; then
+      pipeline="< \"$infile\" $c"
+    else
+      pipeline="$pipeline | $c"
+    fi
+  done
+
+  # run reference shell (exit status = last command by default; do NOT enable pipefail)
+  bash -c "$pipeline > \"$ref\" 2> \"$ref_err\""
+  local sh_status=$?
+
+  # run pipex
+  rm -f "$outfile"
+  local args=("$infile")
+  for c in "${cmds[@]}"; do args+=("$c"); done
+  args+=("$outfile")
+
+  if [[ -n "$TIMEOUT" ]]; then
+    eval $TIMEOUT "\"$PIPEX_BIN\"" "${args[@]}" >"$ppx_out_capture" 2>"$ppx_err"
+  else
+    "\"$PIPEX_BIN\"" "${args[@]}" >"$ppx_out_capture" 2>"$ppx_err"
+  fi
+  local ppx_status=$?
+
+  # compare outputs
+  local out_ok=0
+  if [[ -f "$outfile" ]]; then
+    cmp -s "$ref" "$outfile" || out_ok=1
+  else
+    out_ok=1
+  fi
+
+  local status_ok=0
+  if [[ $sh_status -ne $ppx_status ]]; then status_ok=1; fi
+
+  if [[ $out_ok -eq 0 && $status_ok -eq 0 ]]; then
+    printf "%sPASS%s %s\n" "$GRN" "$NC" "$desc"
+    ((pass_count++))
+  else
+    printf "%sFAIL%s %s\n" "$RED" "$NC" "$desc"
+    echo "  pipeline: $pipeline"
+    echo "  shell status=$sh_status, pipex status=$ppx_status"
+    if [[ $out_ok -ne 0 ]]; then
+      echo "  Output diff:"
+      diff -u "$ref" "$outfile" | sed -n '1,60p' || true
+    fi
+    if [[ -s "$ppx_out_capture" ]]; then
+      echo "  Note: your pipex wrote to stdout (unexpected). First lines:"
+      head -n 5 "$ppx_out_capture"
+    fi
+    if [[ -s "$ref_err" || -s "$ppx_err" ]]; then
+      echo "  Stderr (shell vs pipex, first 5 lines):"
+      diff -u <(head -n 5 "$ref_err") <(head -n 5 "$ppx_err") || true
+    fi
+    ((fail_count++))
+  fi
+}
+
+echo "Using pipex: $PIPEX_BIN"
+echo "Workspace: $WORKDIR"
+echo
+
+# 1) Basic 3 commands
+run_case "3 cmds: upper → grep → wc" \
+  "$DATA/lorem.txt" \
+  "tr '[:lower:]' '[:upper:]'" \
+  "grep -o LOREM" \
+  "wc -l" \
+  --- "$OUT/t1.out"
+
+# 2) 4 commands on numbers
+run_case "4 cmds: cat → grep digits → sort -nr → head" \
+  "$DATA/numbers.txt" \
+  "cat" \
+  "grep -E '^[0-9]+$'" \
+  "sort -nr" \
+  "head -n 5" \
+  --- "$OUT/t2.out"
+
+# 3) Absolute paths only
+run_case "absolute paths: cat → tr → sort → uniq -c" \
+  "$DATA/lorem.txt" \
+  "/bin/cat" \
+  "/usr/bin/tr ' ' '\n'" \
+  "/usr/bin/sort" \
+  "/usr/bin/uniq -c" \
+  --- "$OUT/t3.out"
+
+# 4) Quoted arg with space
+run_case "quoted arg: grep 'dolor sit' → wc -l" \
+  "$DATA/lorem.txt" \
+  "grep 'dolor sit'" \
+  "wc -l" \
+  --- "$OUT/t4.out"
+
+# 5) awk with single quotes
+run_case "awk field extraction" \
+  "$DATA/lorem.txt" \
+  "awk '{print \$1}'" \
+  "sort" \
+  "uniq -c" \
+  --- "$OUT/t5.out"
+
+# 6) Non-existent middle command should not break last exit code
+run_case "missing middle cmd: cmd_not_exist → cat" \
+  "$DATA/lorem.txt" \
+  "cmd_not_exist_zz" \
+  "cat" \
+  --- "$OUT/t6.out"
+
+# 7) Non-existent last command should propagate failure
+run_case "missing last cmd: tr → missing" \
+  "$DATA/lorem.txt" \
+  "tr a-z A-Z" \
+  "cmd_not_exist_zz" \
+  --- "$OUT/t7.out"
+
+# 8) Unreadable infile
+run_case "unreadable infile should fail" \
+  "$DATA/no_read.txt" \
+  "cat" \
+  "wc -l" \
+  --- "$OUT/t8.out"
+
+# 9) Unwritable outfile (existing 444)
+run_case "unwritable outfile (444) should fail" \
+  "$DATA/lorem.txt" \
+  "cat" \
+  "wc -l" \
+  --- "$DATA/no_write.txt"
+
+# 10) Outfile in locked directory
+run_case "unwritable dir should fail" \
+  "$DATA/lorem.txt" \
+  "cat" \
+  "wc -l" \
+  --- "$DATA/locked_dir/out.txt"
+
+# 11) Long chain: 20 cats
+long_cmds=()
+for i in $(seq 1 20); do long_cmds+=("cat"); done
+run_case "20 pipes: cat ×20" "$DATA/utf8.txt" "${long_cmds[@]}" --- "$OUT/t11.out"
+
+# 12) Large input performance
+run_case "large input: numbers → grep → wc -l" \
+  "$DATA/numbers.txt" \
+  "grep -E '^[0-9]{4,5}$'" \
+  "wc -l" \
+  --- "$OUT/t12.out"
+
+# 13) yes | head style backpressure (should finish quickly)
+run_case "backpressure: yes → head -n 1" \
+  "/dev/null" \
+  "yes X" \
+  "head -n 1" \
+  --- "$OUT/t13.out"
+
+# 14) File without trailing newline
+run_case "no newline at EOF: cat → wc -c" \
+  "$DATA/no_newline.txt" \
+  "cat" \
+  "wc -c" \
+  --- "$OUT/t14.out"
+
+# 15) Outfile truncation on repeat runs
+run_case "truncate check #1" \
+  "$DATA/utf8.txt" \
+  "cat" \
+  --- "$OUT/trunc.out"
+run_case "truncate check #2 (content should change)" \
+  "$DATA/lorem.txt" \
+  "wc -l" \
+  --- "$OUT/trunc.out"
+
+# 16) PATH cleared, absolute commands only
+# Use env -i to clear env for both reference and pipex. Implement by wrapping run_case with absolute paths.
+run_case "PATH empty: absolute cmds only" \
+  "$DATA/lorem.txt" \
+  "/bin/cat" \
+  "/usr/bin/wc -l" \
+  --- "$OUT/t16.out"
+
+echo
+echo "Done."
+"""
+with open("/mnt/data/pipex_bonus_many_pipes_tests.sh", "w") as f:
+    f.write(script)
+import os
+os.chmod("/mnt/data/pipex_bonus_many_pipes_tests.sh", 0o755)
+print("Script written to /mnt/data/pipex_bonus_many_pipes_tests.sh")
