@@ -13,6 +13,27 @@
 #include "pipex.h"
 #include <stdio.h>
 
+// int	ft_pipex(int ac, char **argv, char **envp)
+// {
+// 	int infile;
+// 	int outfile;
+// 	int		fdes[(ac - 4) * 2];
+// }
+
+void ft_wait_childs(int ac, int *status, int id)
+{
+	int i;
+
+	i = 0;
+	while (i < ac - 2)
+	{
+		waitpid(id, status, 0);
+		i++;
+		if (i == ac - 2)
+			break ;
+	}
+}
+
 void	ft_execute_execve(char **argv, char **envp, int i)
 {
 	char	*pathname;
@@ -24,14 +45,10 @@ void	ft_execute_execve(char **argv, char **envp, int i)
 }
 
 
-void	ft_close_them(int fdes[], int i)
+void	ft_close_them(int fdes[], int ac)
 {
-	int		k;
-
-	k = 0;
-	while (k < i)
-		close(fdes[k++]);
-
+	while (ac > 0)
+		close(fdes[ac--]);
 }
 
 void	ft_fork_error()
@@ -77,6 +94,7 @@ void ft_dup_it(int *file, int fdes[], int mode, int j_index)
 }
 
 
+
 int	main(int ac, char **argv, char **envp)
 {
 	int		infile;
@@ -87,44 +105,39 @@ int	main(int ac, char **argv, char **envp)
 	int		i;
 	pid_t	id;
 
+	// ft_pipex(ac, argv, envp);
 	if (!ft_parse_input(&infile, &outfile, ac, argv)
 		|| !ft_initialise_pipes(fdes, ac))
 		return (1);
 	j = 0;
 	i = 1;
-	while (++i < ac - 1)
+	while (--ac > 2)
 	{
 		id = fork();
 		if (id == 0)
 		{
-			if (i != ac - 2)
+			if ((ac - 2) != 2)
 			{
-				if (j == 0)
+				if (j == 0 && infile != -1)
 					ft_dup_it(&infile, fdes, INFILE, 0);
 				ft_dup_it(0, fdes, WRITE_END, j);
 			}
 			if (j != 0)
 			{
-				if (i == ac - 2)
+				if (2 == ac - 2)
 					ft_dup_it(&outfile, fdes, OUTFILE, 0);
 				ft_dup_it(0, fdes, READ_END, j);
 			}
-			ft_close_them(fdes, i);
-			ft_execute_execve(argv, envp, i);
+			ft_close_them(fdes, ac);
+			ft_execute_execve(argv, envp, ac);
 		}
 		else if (id < 0)
 			ft_fork_error();
 		j += 2;
 	}
 	ft_close_fdes(fdes, ac);
-	i = 0;
-	while (i < ac - 2)
-	{
-		waitpid(id, &status, 0);
-		i++;
-		if (i == ac - 2)
-			if (WIFEXITED(status))
-				return (WEXITSTATUS(status));
-	}
+	ft_wait_childs(ac, &status, id);
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
 	exit(EXIT_SUCCESS);
 }
