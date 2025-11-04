@@ -34,7 +34,7 @@ int	ft_parse_input(int *infile, int *outfile, int ac, char **argv)
 		write(2, " ", 1);
 		perror(NULL);
 	}
-	*outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	*outfile = open(argv[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (*outfile < 0)
 		return (perror("Open failed"), 0);
 	return (1);

@@ -54,7 +54,6 @@ int	main(int ac, char **argv, char **envp)
 	int		status;
 	int		i;
 	pid_t	id;
-	int		k;
 
 	j = 0;
 	i = 2;
@@ -67,13 +66,12 @@ int	main(int ac, char **argv, char **envp)
 		id = fork();
 		if (id == 0)
 		{
+			if (j != 0)
+				close(fdes[i - 1]);
+			else
+				close(fdes[i - 2]);
 			if (i != ac - 2)
 			{
-				if (dup2(fdes[j + 1], STDOUT_FILENO) < 0)
-				{
-					perror("Dup failed");
-					exit(EXIT_FAILURE);
-				}
 				if (j == 0)
 				{
 					if (dup2(infile, STDIN_FILENO) < 0)
@@ -83,15 +81,15 @@ int	main(int ac, char **argv, char **envp)
 					}
 					close(infile);
 				}
-			}
-			if (i == 0)
-			{
-				if (dup2(fdes[j - 2], STDIN_FILENO) < 0)
+				if (dup2(fdes[j + 1], STDOUT_FILENO) < 0)
 				{
 					perror("Dup failed");
 					exit(EXIT_FAILURE);
 				}
-				if (j == ac - 2)
+			}
+			if (j != 0)
+			{
+				if (i == ac - 2)
 				{
 					if (dup2(outfile, STDOUT_FILENO) < 0)
 					{
@@ -100,15 +98,23 @@ int	main(int ac, char **argv, char **envp)
 					}
 					close(outfile);
 				}
+				if (dup2(fdes[j - 2], STDIN_FILENO) < 0)
+				{
+					perror("Dup failed");
+					exit(EXIT_FAILURE);
+				}
 			}
-			k = 0;
-			while (k < ac - 2)
-				close(fdes[k++]);
+			if (j == 0)
+				close(fdes[i - 1]);
+			else
+				close(fdes[i - 2]);
+			// while (k < ac - 2)
+			// 	close(fdes[k++]);
 			ft_execve_args(&cmd_args, &pathname, argv[i], envp);
 			if (execve(pathname, cmd_args, envp) == -1)
 				ft_handle_exit(argv[i], cmd_args, pathname);
 		}
-		else
+		else if (id < 0)
 		{
 			perror("Fork failed");
 			exit(EXIT_FAILURE);
