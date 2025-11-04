@@ -22,6 +22,22 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 
+#ifndef OUTFILE
+#define OUTFILE 1
+#endif
+
+#ifndef INFILE
+#define INFILE 0
+#endif
+
+#ifndef READ_END
+#define READ_END 0
+#endif
+
+#ifndef WRITE_END
+#define WRITE_END 1
+#endif
+
 void		free_splits(char **strs);
 void		ft_close_fdes(int fdes[], int ac);
 void		ft_execve_args(char ***cmds, char **path, char *cmd, char **envp);
