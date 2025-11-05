@@ -57,7 +57,8 @@ char		*ft_strjoin(char const *s1, char const *s2);
 char		*ft_search_pathname(char **envp, char *cmd);
 char		*ft_strnstr(const char *haystack, const char *needle, size_t len);
 char		*ft_strdup(const char *s);
+size_t	ft_strlen(const char *s);
 int			ft_parse_input(int *infile, int *outfile, int ac, char **argv);
-int			ft_initialise_pipes(int fdes[], int ac);
+int			ft_initialise_pipes(int **pipefdes, int ac);
 char		*ft_check_routes(char **envp);
 #endif

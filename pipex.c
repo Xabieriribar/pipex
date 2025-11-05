@@ -34,8 +34,8 @@ void	ft_execute_execve(char **argv, char **envp, int i)
 	char	**cmd_args;
 
 	ft_execve_args(&cmd_args, &pathname, argv[i], envp);
-	if (!pathname && i != 2)
-		ft_handle_exit(argv[i], cmd_args, pathname);
+	// if (!pathname && i != 2)
+	// 	ft_handle_exit(argv[i], cmd_args, pathname);
 
 	if (execve(pathname, cmd_args, envp) == -1)
 		ft_handle_exit(argv[i], cmd_args, pathname);
@@ -73,11 +73,13 @@ void ft_dup_it(int *file, int fdes[], int mode, int j_index)
 			if (dup2(*file, STDOUT_FILENO) < 0)
 				ft_dup_failed();
 		}
-		else if (mode == INFILE)
+		else if (mode == INFILE && *file != -1)
 		{
 			if (dup2(*file, STDIN_FILENO) < 0)
 				ft_dup_failed();
 		}
+		else
+			exit(EXIT_FAILURE);
 	}
 	else
 	{
@@ -110,7 +112,7 @@ int	ft_pipex(int ac, char **argv, char **envp, t_data *data)
 		{
 			if (i != ac - 2)
 			{
-				if (j == 0 && data->in!= -1)
+				if (j == 0)
 					ft_dup_it(&data->in, data->pipefdes, INFILE, 0);
 				ft_dup_it(0, data->pipefdes, WRITE_END, j);
 			}
@@ -137,15 +139,22 @@ int	main(int ac, char **argv, char **envp)
 	int		infile;
 	int		outfile;
 	t_data	*data;
-	int		pipefdes[(ac - 4) * 2];
+	int		*pipefdes;
 	int		status;
 
+	if (ac <= 3)
+	{
+		write(1, "Usage: ./pipex file1 cmd1 cmd2 file2", 37);
+		return (write(2, "\n", 1), 1);
+	}
+	if (!ft_parse_input(&infile, &outfile, ac, argv))
+		return (1);
+	ft_initialise_pipes(&pipefdes, ac);
+	if (pipefdes == 0)
+		return (1);
 	data = malloc(sizeof(struct s_data));
 	if (!data)
 		exit(EXIT_FAILURE);
-	if (!ft_parse_input(&infile, &outfile, ac, argv)
-		|| !ft_initialise_pipes(pipefdes, ac))
-		return (1);
 	data->in= infile;
 	data->out= outfile;
 	data->ac = ac;
