@@ -95,6 +95,6 @@ void	ft_close_fdes(int fdes[], int ac)
 	int i;
 	
 	i = 0;
-	while (i < (ac - 2) * 2)
+	while (i < (ac - 4) * 2)
 		close(fdes[i++]);
 }

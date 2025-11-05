@@ -13,12 +13,6 @@
 #include "pipex.h"
 #include <stdio.h>
 
-// int	ft_pipex(int ac, char **argv, char **envp)
-// {
-// 	int infile;
-// 	int outfile;
-// 	int		fdes[(ac - 4) * 2];
-// }
 
 void ft_wait_childs(int ac, int *status, int id)
 {
@@ -40,15 +34,22 @@ void	ft_execute_execve(char **argv, char **envp, int i)
 	char	**cmd_args;
 
 	ft_execve_args(&cmd_args, &pathname, argv[i], envp);
+	if (!pathname && i != 2)
+		ft_handle_exit(argv[i], cmd_args, pathname);
+
 	if (execve(pathname, cmd_args, envp) == -1)
 		ft_handle_exit(argv[i], cmd_args, pathname);
 }
 
 
-void	ft_close_them(int fdes[], int ac)
+void	ft_close_them(int fdes[], int i)
 {
-	while (ac > 0)
-		close(fdes[ac--]);
+	int		k;
+
+	k = 0;
+	while (k < i)
+		close(fdes[k++]);
+
 }
 
 void	ft_fork_error()
@@ -93,51 +94,68 @@ void ft_dup_it(int *file, int fdes[], int mode, int j_index)
 	}
 }
 
-
-
-int	main(int ac, char **argv, char **envp)
+int	ft_pipex(int ac, char **argv, char **envp, t_data *data)
 {
-	int		infile;
-	int		outfile;
-	int		fdes[(ac - 4) * 2];
-	int j;
-	int		status;
 	int		i;
+	int		j;
+	int		status;
 	pid_t	id;
 
-	// ft_pipex(ac, argv, envp);
-	if (!ft_parse_input(&infile, &outfile, ac, argv)
-		|| !ft_initialise_pipes(fdes, ac))
-		return (1);
 	j = 0;
 	i = 1;
-	while (--ac > 2)
+	while (++i < ac - 1)
 	{
 		id = fork();
 		if (id == 0)
 		{
-			if ((ac - 2) != 2)
+			if (i != ac - 2)
 			{
-				if (j == 0 && infile != -1)
-					ft_dup_it(&infile, fdes, INFILE, 0);
-				ft_dup_it(0, fdes, WRITE_END, j);
+				if (j == 0 && data->in!= -1)
+					ft_dup_it(&data->in, data->pipefdes, INFILE, 0);
+				ft_dup_it(0, data->pipefdes, WRITE_END, j);
 			}
 			if (j != 0)
 			{
-				if (2 == ac - 2)
-					ft_dup_it(&outfile, fdes, OUTFILE, 0);
-				ft_dup_it(0, fdes, READ_END, j);
+				if (i == ac - 2)
+					ft_dup_it(&data->out, data->pipefdes, OUTFILE, 0);
+				ft_dup_it(0, data->pipefdes, READ_END, j);
 			}
-			ft_close_them(fdes, ac);
-			ft_execute_execve(argv, envp, ac);
+			ft_close_them(data->pipefdes, i);
+			ft_execute_execve(argv, envp, i);
 		}
 		else if (id < 0)
 			ft_fork_error();
 		j += 2;
 	}
-	ft_close_fdes(fdes, ac);
+	ft_close_fdes(data->pipefdes, ac);
 	ft_wait_childs(ac, &status, id);
+	return (status);
+}
+
+int	main(int ac, char **argv, char **envp)
+{
+	int		infile;
+	int		outfile;
+	t_data	*data;
+	int		pipefdes[(ac - 4) * 2];
+	int		status;
+
+	data = malloc(sizeof(struct s_data));
+	if (!data)
+		exit(EXIT_FAILURE);
+	if (!ft_parse_input(&infile, &outfile, ac, argv)
+		|| !ft_initialise_pipes(pipefdes, ac))
+		return (1);
+	data->in= infile;
+	data->out= outfile;
+	data->ac = ac;
+	data->pipefdes = pipefdes;
+	status = ft_pipex(ac, argv, envp, data);
 	if (WIFEXITED(status))
-		return (WEXITSTATUS(status));
+		{
+			free(data);
+			return (WEXITSTATUS(status));
+		}
+	free(data);
 	exit(EXIT_SUCCESS);
 }

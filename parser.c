@@ -67,8 +67,7 @@ int	ft_check_access(char *pathname)
 
 void	ft_handle_exit(char *str, char **cmd_args, char *pathname)
 {
-	if (pathname != NULL)
-		free(pathname);
+	free(pathname);
 	perror(str);
 	free_splits(cmd_args);
 	exit(127);

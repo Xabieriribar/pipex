@@ -38,6 +38,15 @@
 #define WRITE_END 1
 #endif
 
+typedef struct  s_data
+{
+    char    **cmds;
+    int     in;
+    int     ac;
+    int     out;
+    int     *pipefdes;
+}   t_data;
+
 void		free_splits(char **strs);
 void		ft_close_fdes(int fdes[], int ac);
 void		ft_execve_args(char ***cmds, char **path, char *cmd, char **envp);
