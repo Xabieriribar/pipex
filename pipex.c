@@ -11,8 +11,18 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
-#include <stdio.h>
 
+void	ft_fork_error(void)
+{
+	perror("Fork failed");
+	exit(EXIT_FAILURE);
+}
+
+void	ft_dup_failed(void)
+{
+	perror("Dup failed");
+	exit(EXIT_FAILURE);
+}
 
 void	ft_pipex(int ac, char **argv, char **envp, t_data *data)
 {

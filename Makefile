@@ -1,9 +1,9 @@
 NAME    := pipex
 CC      := cc
-FLAGS   := -Wall -Wextra -Werror -g -I.
+FLAGS   := -Wall -Wextra -Werror -I.
 RM      := rm -f
 
-SRCS    := pipex.c pipex_utils.c parser.c error.c main.c
+SRCS    := pipex.c pipex_utils.c parser.c main.c
 OBJS    := $(SRCS:.c=.o)
 
 all: $(NAME)

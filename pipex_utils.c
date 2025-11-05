@@ -92,8 +92,8 @@ void	ft_execve_args(char ***cmds, char **path, char *cmd, char **envp)
 
 void	ft_close_fdes(int fdes[], int ac)
 {
-	int i;
-	
+	int	i;
+
 	i = 0;
 	while (i < (ac - 4) * 2)
 		close(fdes[i++]);
