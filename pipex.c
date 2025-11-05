@@ -24,7 +24,7 @@ void	ft_dup_failed(void)
 	exit(EXIT_FAILURE);
 }
 
-void	ft_pipex(int ac, char **argv, char **envp, t_data *data)
+int	ft_pipex(int ac, char **argv, char **envp, t_data *data)
 {
 	pid_t	id;
 
@@ -42,6 +42,9 @@ void	ft_pipex(int ac, char **argv, char **envp, t_data *data)
 	}
 	ft_close_fdes(data->pipefdes, ac);
 	ft_wait_childs(ac, &data->status, id);
+	if (WIFEXITED(data->status))
+		return (WEXITSTATUS(data->status));
+	exit(EXIT_SUCCESS);
 }
 
 int	main(int ac, char **argv, char **envp)
@@ -65,9 +68,9 @@ int	main(int ac, char **argv, char **envp)
 	data->pipefdes = pipefdes;
 	data->i = 1;
 	data->j = 0;
-	ft_pipex(ac, argv, envp, data);
-	if (WIFEXITED(data->status))
-		return (free(data), WEXITSTATUS(data->status));
+	status = ft_pipex(ac, argv, envp, data);
+	if (status == 127)
+		return (free(data), WEXITSTATUS(32512));
 	free(data);
 	exit(EXIT_SUCCESS);
 }
