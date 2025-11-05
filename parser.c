@@ -17,6 +17,11 @@ int	ft_parse_input(int *infile, int *outfile, int ac, char **argv)
 	int	i;
 
 	i = 0;
+	if (ac <= 3)
+	{
+		write(1, "Usage: ./pipex file1 cmd1 cmd2 file2\n", 37);
+		return (write(2, "\n", 1), 1);
+	}
 	*infile = open(argv[1], O_RDONLY, 0644);
 	if (*infile < 0)
 	{
@@ -38,14 +43,14 @@ int	ft_parse_input(int *infile, int *outfile, int ac, char **argv)
 /*
 This function takes the file descriptors and the number of arguments the user introduced and opens n - 2 pipes using the pipe function. For example, if we have an input of ./pipex infile cat cat cat hostname, since the number of arguments (ac)
 is 5, it will open 5 - 2 pipes*/
-int	ft_initialise_pipes(int **pipefdes, int ac)
+int	ft_initialise_pipes(int pipefdes[], int ac)
 {
 	int i;
 
 	i = 0;
 	while (i < ac - 2)
 	{
-		if (pipe(*pipefdes + i) < 0)
+		if (pipe(pipefdes + i) < 0)
 			return (perror("Pipe failed"), 0);
 		i += 2;
 	}

@@ -22,8 +22,12 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 
-#ifndef OUTFILE
-#define OUTFILE 1
+# ifndef OUTFILE
+# define OUTFILE 1
+# endif
+
+#ifndef MAX_PIPES
+#define MAX_PIPES 10000
 #endif
 
 #ifndef INFILE
@@ -40,11 +44,15 @@
 
 typedef struct  s_data
 {
-    char    **cmds;
-    int     in;
-    int     ac;
-    int     out;
-    int     *pipefdes;
+	int     in;
+	int     ac;
+	int     out;
+	int     status;
+	int     i;
+	int     j;
+	int     *pipefdes;
+	char    **argv;
+	char    **envp;
 }   t_data;
 
 void		free_splits(char **strs);
@@ -57,8 +65,12 @@ char		*ft_strjoin(char const *s1, char const *s2);
 char		*ft_search_pathname(char **envp, char *cmd);
 char		*ft_strnstr(const char *haystack, const char *needle, size_t len);
 char		*ft_strdup(const char *s);
-size_t	ft_strlen(const char *s);
+size_t      ft_strlen(const char *s);
+void        ft_fork_error(void);
+void        ft_dup_failed(void);
+void        ft_wait_childs(int ac, int *status, int id);
+void        ft_exec_child(t_data *data);
 int			ft_parse_input(int *infile, int *outfile, int ac, char **argv);
-int			ft_initialise_pipes(int **pipefdes, int ac);
+int			ft_initialise_pipes(int pipefdes[], int ac);
 char		*ft_check_routes(char **envp);
 #endif
