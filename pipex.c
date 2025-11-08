@@ -40,11 +40,11 @@ int	ft_pipex(int ac, char **argv, char **envp, t_data *data)
 			ft_fork_error();
 		data->j += 2;
 	}
-	ft_close_fdes(data->pipefdes, ac);
+	ft_close_fdes(data);
 	ft_wait_childs(ac, &data->status, id);
 	if (WIFEXITED(data->status))
 		return (WEXITSTATUS(data->status));
-	exit(EXIT_SUCCESS);
+	return (0);
 }
 
 int	main(int ac, char **argv, char **envp)
@@ -72,5 +72,6 @@ int	main(int ac, char **argv, char **envp)
 		return (free(data), WEXITSTATUS(32512));
 	close(data->out);
 	close(data->in);
-	return (free(data), 0);
+	free(data);
+	return (0);
 }

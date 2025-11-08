@@ -62,9 +62,9 @@ int	ft_check_access(char *pathname)
 		return (-1);
 }
 
-void	ft_handle_exit(char *str, char **cmd_args, char *pathname)
+void	ft_handle_exit(char *str, char ***cmd_args, t_data *data)
 {
-	if (errno == EFAULT || !pathname)
+	if (errno == EFAULT)
 	{
 		write(2, "command not found: ", 19);
 		write(2, *&str, ft_strlen(str));
@@ -72,7 +72,8 @@ void	ft_handle_exit(char *str, char **cmd_args, char *pathname)
 	}
 	else
 		perror(str);
-	free_splits(cmd_args);
+	free_splits(*cmd_args);
+	free(data);
 	exit(127);
 }
 

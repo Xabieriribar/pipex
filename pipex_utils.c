@@ -17,7 +17,7 @@ void	free_splits(char **strs)
 	size_t	index;
 
 	index = 0;
-	while (strs[index])
+	while (strs[index] != NULL)
 	{
 		free(strs[index]);
 		index++;
@@ -90,11 +90,11 @@ void	ft_execve_args(char ***cmds, char **path, char *cmd, char **envp)
 	*path = ft_search_pathname(envp, *cmds[0]);
 }
 
-void	ft_close_fdes(int fdes[], int ac)
+void	ft_close_fdes(t_data *data)
 {
 	int	i;
 
 	i = 0;
-	while (i < (ac - 3) * 2)
-		close(fdes[i++]);
+	while (i < (data->ac - 3) * 2)
+		close(data->pipefdes[i++]);
 }

@@ -56,9 +56,9 @@ typedef struct s_data
 }	t_data;
 
 void	free_splits(char **strs);
-void	ft_close_fdes(int fdes[], int ac);
+void	ft_close_fdes(t_data *data);
 void	ft_execve_args(char ***cmds, char **path, char *cmd, char **envp);
-void	ft_handle_exit(char *str, char **cmd_args, char *pathname);
+void	ft_handle_exit(char *str, char ***cmd_args, t_data *data);
 int		ft_check_access(char *pathname);
 char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);

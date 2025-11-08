@@ -24,30 +24,30 @@ void	ft_wait_childs(int ac, int *status, int id)
 	}
 }
 
-void	ft_execute_execve(char **argv, char **envp, int i)
+void	ft_execute_execve(t_data *data)
 {
 	char	*pathname;
 	char	**cmd_args;
 
-	ft_execve_args(&cmd_args, &pathname, argv[i], envp);
+	ft_execve_args(&cmd_args, &pathname, data->argv[data->i], data->envp);
 	if (!pathname)
-		ft_handle_exit(argv[i], cmd_args, pathname);
-	if (execve(pathname, cmd_args, envp) == -1)
-		ft_handle_exit(argv[i], cmd_args, pathname);
+		pathname = "(nil)";
+	if (execve(pathname, cmd_args, data->envp) == -1)
+		ft_handle_exit(data->argv[data->i], &cmd_args, data);
 }
 
-void	ft_dup_it(int *file, int fdes[], int mode, int j_index)
+void	ft_dup_it(t_data *data, int mode)
 {
-	if (file != 0)
+	if (data->in != 0 || data->out != 0)
 	{
 		if (mode == OUTFILE)
 		{
-			if (dup2(*file, STDOUT_FILENO) < 0)
+			if (dup2(data->out, STDOUT_FILENO) < 0)
 				ft_dup_failed();
 		}
 		else if (mode == INFILE)
 		{
-			if (dup2(*file, STDIN_FILENO) < 0)
+			if (dup2(data->in, STDIN_FILENO) < 0)
 				ft_dup_failed();
 		}
 		else
@@ -55,12 +55,12 @@ void	ft_dup_it(int *file, int fdes[], int mode, int j_index)
 	}
 	else if (mode == WRITE_END)
 	{
-		if (dup2(fdes[j_index + 1], STDOUT_FILENO) < 0)
+		if (dup2(data->pipefdes[data->j + 1], STDOUT_FILENO) < 0)
 			ft_dup_failed();
 	}
 	else if (mode == READ_END)
 	{
-		if (dup2(fdes[j_index - 2], STDIN_FILENO) < 0)
+		if (dup2(data->pipefdes[data->j - 2], STDIN_FILENO) < 0)
 			ft_dup_failed();
 	}
 }
@@ -70,15 +70,15 @@ void	ft_exec_child(t_data *data)
 	if (data->i != (data->ac - 2))
 	{
 		if (data->j == 0)
-			ft_dup_it(&data->in, data->pipefdes, INFILE, 0);
-		ft_dup_it(0, data->pipefdes, WRITE_END, data->j);
+			ft_dup_it(data, INFILE);
+		ft_dup_it(data, WRITE_END);
 	}
 	if (data->j != 0)
 	{
 		if (data->i == (data->ac - 2))
-			ft_dup_it(&data->out, data->pipefdes, OUTFILE, 0);
-		ft_dup_it(0, data->pipefdes, READ_END, data->j);
+			ft_dup_it(data, OUTFILE);
+		ft_dup_it(data, READ_END);
 	}
-	ft_close_fdes(data->pipefdes, data->ac);
-	ft_execute_execve(data->argv, data->envp, data->i);
+	ft_close_fdes(data);
+	ft_execute_execve(data);
 }
