@@ -52,7 +52,7 @@ int	main(int ac, char **argv, char **envp)
 	int		infile;
 	int		outfile;
 	t_data	*data;
-	int		pipefdes[(MAX_PIPES - 4) * 2];
+	int		pipefdes[MAX_PIPES];
 	int		status;
 
 	status = 0;

@@ -19,8 +19,8 @@ int	ft_parse_input(int *infile, int *outfile, int ac, char **argv)
 	i = 0;
 	if (ac <= 3)
 	{
-		write(1, "Usage: ./pipex file1 cmd1 cmd2 file2\n", 37);
-		return (write(2, "\n", 1), 1);
+		write(2, "Usage: ./pipex file1 cmd1 cmd2 file2\n", 37);
+		return (1);
 	}
 	*infile = open(argv[1], O_RDONLY, 0644);
 	if (*infile < 0)
@@ -45,11 +45,11 @@ int	ft_initialise_pipes(int pipefdes[], int ac)
 	int		i;
 
 	i = 0;
-	while (i < ac - 2)
+	while (i < ac - 3)
 	{
-		if (pipe(pipefdes + i) < 0)
+		if (pipe(pipefdes + i * 2) < 0)
 			return (perror("Pipe failed"), 0);
-		i += 2;
+		i++;
 	}
 	return (1);
 }

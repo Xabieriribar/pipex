@@ -21,8 +21,6 @@ void	ft_wait_childs(int ac, int *status, int id)
 	{
 		waitpid(id, status, 0);
 		i++;
-		if (i == ac - 2)
-			break ;
 	}
 }
 
@@ -34,15 +32,6 @@ void	ft_execute_execve(char **argv, char **envp, int i)
 	ft_execve_args(&cmd_args, &pathname, argv[i], envp);
 	if (execve(pathname, cmd_args, envp) == -1)
 		ft_handle_exit(argv[i], cmd_args, pathname);
-}
-
-void	ft_close_them(int fdes[], int i)
-{
-	int		k;
-
-	k = 0;
-	while (k < i)
-		close(fdes[k++]);
 }
 
 void	ft_dup_it(int *file, int fdes[], int mode, int j_index)
@@ -88,6 +77,6 @@ void	ft_exec_child(t_data *data)
 			ft_dup_it(&data->out, data->pipefdes, OUTFILE, 0);
 		ft_dup_it(0, data->pipefdes, READ_END, data->j);
 	}
-	ft_close_them(data->pipefdes, data->i);
+	ft_close_fdes(data->pipefdes, data->ac);
 	ft_execute_execve(data->argv, data->envp, data->i);
 }
