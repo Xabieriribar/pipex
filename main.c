@@ -31,27 +31,29 @@ void	ft_execute_execve(t_data *data)
 
 	ft_execve_args(&cmd_args, &pathname, data->argv[data->i], data->envp);
 	if (!pathname)
-		pathname = "(nil)";
+	{
+		write(2, "command not found: ", 19);
+		write(2, data->argv[data->i], ft_strlen(data->argv[data->i]));
+		write(2, "\n", 1);
+		free_splits(cmd_args);
+		free(data);
+		exit(127);
+	}
 	if (execve(pathname, cmd_args, data->envp) == -1)
 		ft_handle_exit(data->argv[data->i], &cmd_args, data);
 }
 
 void	ft_dup_it(t_data *data, int mode)
 {
-	if (data->in != 0 || data->out != 0)
+	if (mode == OUTFILE)
 	{
-		if (mode == OUTFILE)
-		{
-			if (dup2(data->out, STDOUT_FILENO) < 0)
-				ft_dup_failed();
-		}
-		else if (mode == INFILE)
-		{
-			if (dup2(data->in, STDIN_FILENO) < 0)
-				ft_dup_failed();
-		}
-		else
-			exit(EXIT_FAILURE);
+		if (dup2(data->out, STDOUT_FILENO) < 0)
+			ft_dup_failed();
+	}
+	else if (mode == INFILE)
+	{
+		if (dup2(data->in, STDIN_FILENO) < 0)
+			ft_dup_failed();
 	}
 	else if (mode == WRITE_END)
 	{

@@ -35,11 +35,11 @@
 # endif
 
 # ifndef READ_END
-#  define READ_END 0
+#  define READ_END 2
 # endif
 
 # ifndef WRITE_END
-#  define WRITE_END 1
+#  define WRITE_END 3
 # endif
 
 typedef struct s_data

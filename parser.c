@@ -64,14 +64,7 @@ int	ft_check_access(char *pathname)
 
 void	ft_handle_exit(char *str, char ***cmd_args, t_data *data)
 {
-	if (errno == EFAULT)
-	{
-		write(2, "command not found: ", 19);
-		write(2, *&str, ft_strlen(str));
-		write(2, "\n", 1);
-	}
-	else
-		perror(str);
+	perror(str);
 	free_splits(*cmd_args);
 	free(data);
 	exit(127);
