@@ -30,6 +30,8 @@ void	ft_execute_execve(char **argv, char **envp, int i)
 	char	**cmd_args;
 
 	ft_execve_args(&cmd_args, &pathname, argv[i], envp);
+	if (!pathname)
+		ft_handle_exit(argv[i], cmd_args, pathname);
 	if (execve(pathname, cmd_args, envp) == -1)
 		ft_handle_exit(argv[i], cmd_args, pathname);
 }
@@ -43,7 +45,7 @@ void	ft_dup_it(int *file, int fdes[], int mode, int j_index)
 			if (dup2(*file, STDOUT_FILENO) < 0)
 				ft_dup_failed();
 		}
-		else if (mode == INFILE && *file != -1)
+		else if (mode == INFILE)
 		{
 			if (dup2(*file, STDIN_FILENO) < 0)
 				ft_dup_failed();

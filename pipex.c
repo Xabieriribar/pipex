@@ -53,24 +53,24 @@ int	main(int ac, char **argv, char **envp)
 	int		outfile;
 	t_data	*data;
 	int		pipefdes[MAX_PIPES];
-	int		status;
 
-	status = 0;
 	if (!ft_parse_input(&infile, &outfile, ac, argv)
 		|| !ft_initialise_pipes(pipefdes, ac))
 		return (1);
 	data = malloc(sizeof(struct s_data));
 	if (!data)
 		exit(EXIT_FAILURE);
-	data->in = infile;
+	if (infile != -1)
+		data->in = infile;
 	data->out = outfile;
-	data->status = status;
+	data->status = 0;
 	data->pipefdes = pipefdes;
 	data->i = 1;
 	data->j = 0;
-	status = ft_pipex(ac, argv, envp, data);
-	if (status == 127)
+	data->status = ft_pipex(ac, argv, envp, data);
+	if (data->status == 127)
 		return (free(data), WEXITSTATUS(32512));
-	free(data);
-	exit(EXIT_SUCCESS);
+	close(data->out);
+	close(data->in);
+	return (free(data), 0);
 }

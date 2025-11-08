@@ -18,10 +18,7 @@ int	ft_parse_input(int *infile, int *outfile, int ac, char **argv)
 
 	i = 0;
 	if (ac <= 3)
-	{
-		write(2, "Usage: ./pipex file1 cmd1 cmd2 file2\n", 37);
-		return (1);
-	}
+		return (write(2, "Usage: ./pipex file1 cmd1 cmd2 file2\n", 37), 1);
 	*infile = open(argv[1], O_RDONLY, 0644);
 	if (*infile < 0)
 	{
@@ -32,6 +29,9 @@ int	ft_parse_input(int *infile, int *outfile, int ac, char **argv)
 		}
 		write(2, ":", 1);
 		write(2, " ", 1);
+		*infile = open("/dev/null", O_RDONLY);
+		if (*infile == -1)
+			return (perror("/dev/null open failed"), 0);
 		perror(NULL);
 	}
 	*outfile = open(argv[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -64,8 +64,7 @@ int	ft_check_access(char *pathname)
 
 void	ft_handle_exit(char *str, char **cmd_args, char *pathname)
 {
-	free(pathname);
-	if (errno == EFAULT)
+	if (errno == EFAULT || !pathname)
 	{
 		write(2, "command not found: ", 19);
 		write(2, *&str, ft_strlen(str));

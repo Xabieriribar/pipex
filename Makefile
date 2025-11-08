@@ -1,6 +1,6 @@
 NAME    := pipex
 CC      := cc
-FLAGS   := -Wall -Wextra -Werror -I. -g
+FLAGS   := -Wall -Wextra -Werror -g
 RM      := rm -f
 
 SRCS    := pipex.c pipex_utils.c parser.c main.c
