@@ -1,95 +1,141 @@
-push_swap
+<div align="left">
 
-A C program that sorts a random set of integers using two stacks (a and b) and a specific set of operations. The goal is to sort the numbers in ascending order using the minimum number of actions possible.
+<img src="https://github.com/ayogun/42-project-badges/blob/main/badges/push_swapm.png?raw=true" width="150px" alt="Push Swap Badge" style="margin-bottom: 20px;">
 
-This project is part of the 42 School curriculum.
-The Algorithm
+<h3>
+    <span style="font-family: sans-serif; color: #333;">
+        PUSH_SWAP: ALGORITHMIC SORTING ENGINE
+    </span>
+</h3>
+<p>
+    <em>42 Lausanne, Switzerland</em>
+</p>
 
-I implemented the "Turk Algorithm" (or Mechanical Turk). Rather than using standard sorts like QuickSort or Radix (which are efficient in time but not in operation count), this greedy algorithm focuses on calculating the "cheapest" move for every node.
+<br>
 
-The logic flow:
+<h3>01. ABOUT</h3>
+<p style="max-width: 600px; line-height: 1.6; font-family: sans-serif;">
+    This project is a deep dive into algorithmic complexity and stack manipulation. The goal is simple: sort a random set of integers using two stacks (<strong>Stack A</strong> and <strong>Stack B</strong>) and a specific set of operations. The challenge lies in the constraint: minimizing the number of instructions.
+    <br><br>
+    I implemented the <strong>Turk Algorithm</strong> (Mechanical Turk). Instead of recursive methods like QuickSort, this is a greedy algorithm that calculates the "cheapest" move for every node at every step, ensuring highly optimized operation counts for large datasets.
+</p>
 
-    Push to B: Push all numbers from Stack A to Stack B, leaving only three elements in A.
+<br>
+<hr style="height: 2px; border: none; background-color: #000;">
+<br>
 
-        (Optimization: Pre-sort slightly by checking if a number is above/below the median to decide if it stays or rotates).
+<h3>02. THE LOGIC</h3>
+<table>
+    <tr>
+        <td width="50%" valign="top">
+            <strong>PHASE 1: PARTITIONING</strong>
+            <br><br>
+            <ul>
+                <li><strong>Push to B:</strong> Move all nodes from A to B, leaving only 3 elements.</li>
+                <li><strong>Pre-sorting:</strong> While pushing, I check median values. If a node is smaller than the median, I rotate B to place it at the bottom.</li>
+                <li><strong>Tiny Sort:</strong> Instantly sort the remaining 3 numbers in Stack A.</li>
+            </ul>
+        </td>
+        <td width="50%" valign="top">
+             <strong>PHASE 2: MECHANICAL TURK</strong>
+             <br><br>
+            <ul>
+                <li><strong>Cost Calculation:</strong> For every node in B, I calculate the moves required to put it in position in A.</li>
+                <li><strong>Cheapest Move:</strong> I select the node with the absolute lowest cost.</li>
+                <li><strong>Simultaneous Rotation:</strong> I utilize <code>rr</code> and <code>rrr</code> to move both stacks at once, saving instructions.</li>
+            </ul>
+        </td>
+    </tr>
+</table>
 
-    Sort A: Quickly sort the remaining 3 numbers in Stack A.
+<br>
+<br>
 
-    Calculate Costs: For every node in Stack B, calculate how many moves it takes to get it to the top of B, and how many moves to get its "target" (the closest larger number) to the top of A.
+<h3>03. TECHNOLOGY STACK</h3>
 
-    Push Back: Execute the move set with the lowest cost (utilizing simultaneous rotations like rr and rrr to save moves) and push to A.
+<p>
+    <a href="#">
+        <img src="https://img.shields.io/badge/C-000000?style=for-the-badge&logo=c&logoColor=white" alt="C">
+    </a>
+    <a href="#">
+        <img src="https://img.shields.io/badge/Make-000000?style=for-the-badge&logo=gnu-make&logoColor=white" alt="Makefile">
+    </a>
+    <a href="#">
+        <img src="https://img.shields.io/badge/Shell_Script-000000?style=for-the-badge&logo=gnu-bash&logoColor=white" alt="Bash">
+    </a>
+    <a href="#">
+        <img src="https://img.shields.io/badge/Git-000000?style=for-the-badge&logo=git&logoColor=white" alt="Git">
+    </a>
+</p>
 
-    Final Alignment: Rotate Stack A until the smallest number is at the top.
+<br>
+<hr style="height: 1px; border: none; background-color: #ddd;">
+<br>
 
-Operations
+<h3>04. PERFORMANCE METRICS</h3>
 
-The program utilizes the standard 42 instruction set:
+<table>
+    <thead align="left">
+        <tr>
+            <th width="20%">Stack Size</th>
+            <th width="40%">Constraint (Max Ops)</th>
+            <th width="40%">My Algorithm (Avg Ops)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>3 Numbers</strong></td>
+            <td>< 3</td>
+            <td><strong>1-2</strong> (Hardcoded)</td>
+        </tr>
+        <tr>
+            <td><strong>5 Numbers</strong></td>
+            <td>< 12</td>
+            <td><strong>9</strong> (Average)</td>
+        </tr>
+        <tr>
+            <td><strong>100 Numbers</strong></td>
+            <td>< 700</td>
+            <td><strong>~580</strong></td>
+        </tr>
+        <tr>
+            <td><strong>500 Numbers</strong></td>
+            <td>< 5500</td>
+            <td><strong>~4800</strong></td>
+        </tr>
+    </tbody>
+</table>
 
-    sa, sb, ss: Swap the first two elements.
+<br>
+<br>
 
-    pa, pb: Push the top element from one stack to another.
+<h3>05. USAGE</h3>
 
-    ra, rb, rr: Rotate up (first becomes last).
+<p style="font-family: sans-serif;">
+Clone the repository and compile the executable using the Makefile:
+</p>
 
-    rra, rrb, rrr: Reverse rotate (last becomes first).
-
-Installation
-
-Clone the repository and compile using make.
-Bash
-
-git clone git@github.com:Xabieriribar/push_swap.git push_swap
+```bash
+git clone git@github.com:Xabieriribar/push_swap.git
 cd push_swap
 make
 
-This will generate the push_swap executable. The project includes a custom libft which is compiled automatically.
-Usage
-
-Run the program by passing a list of integers as arguments.
+<p style="font-family: sans-serif;"> Run the program with a list of integers: </p>
 Bash
 
-./push_swap 2 1 3 6 5 8
+./push_swap 4 67 3 87 23
 
-You can also pass the numbers as a single string:
-Bash
-
-./push_swap "2 1 3 6 5 8"
-
-Counting Operations
-
-To check the efficiency (number of operations), you can pipe the output to wc -l:
+<p style="font-family: sans-serif;"> <strong>Bonus:</strong> Check the number of operations: </p>
 Bash
 
 ARG="4 67 3 87 23"; ./push_swap $ARG | wc -l
 
-Verification
+<h3>06. FILE STRUCTURE</h3> <blockquote> <em>The project follows a strict 42-Norminette compliant structure, separating operations, sorting logic, and parsing utilities.</em> </blockquote>
 
-If you have the 42 checker utility (usually provided in the subject), you can verify if the list is actually sorted:
-Bash
+<h3>07. CONTACT</h3>
 
-ARG="4 67 3 87 23"; ./push_swap $ARG | ./checker_Mac $ARG
+<p> <a href="https://ch.linkedin.com/in/xabier-iribar-revuelta-b85b09320" target="_blank"> <img src="https://img.shields.io/badge/LinkedIn-000000?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"> </a> <a href="https://xabieriribar.com" target="_blank"> <img src="https://img.shields.io/badge/Portfolio-000000?style=for-the-badge&logo=firefox&logoColor=white" alt="Portfolio"> </a> <a href="mailto:xabieriribarrevuelta@gmail.com"> <img src="https://img.shields.io/badge/Email-000000?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"> </a> </p>
 
-Should output: OK
-Error Handling
+<p style="font-size: 12px; color: #666; margin-top: 20px;"> © 2024 Xabier Iribar Revuelta. All Rights Reserved. </p>
 
-The program handles various edge cases and returns Error on standard error if:
-
-    Arguments contain non-numeric characters.
-
-    Arguments exceed integer limits (INT_MAX / INT_MIN).
-
-    Duplicate numbers are provided.
-
-Project Structure
-
-    push_swap.c: Main entry point and orchestration.
-
-    parsing/: Input validation and array creation.
-
-    operations/: The actual stack manipulation commands (sa, pb, rra, etc.).
-
-    find_utils/: Logic for calculating move costs and finding target nodes.
-
-    sort_utils/: Sorting logic for small sets (3 numbers) and the Turk algorithm controller.
-
-    libft/: My custom C library.
+</div>
