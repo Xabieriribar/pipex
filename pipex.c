@@ -60,8 +60,7 @@ int	main(int ac, char **argv, char **envp)
 	data = malloc(sizeof(struct s_data));
 	if (!data)
 		exit(EXIT_FAILURE);
-	if (infile != -1)
-		data->in = infile;
+	data->in = infile;
 	data->out = outfile;
 	data->status = 0;
 	data->pipefdes = pipefdes;

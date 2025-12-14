@@ -17,10 +17,12 @@ void	ft_wait_childs(int *status, pid_t last_pid)
 	pid_t	pid;
 	int		wstatus;
 
-	while ((pid = waitpid(-1, &wstatus, 0)) > 0)
+	pid = waitpid(-1, &wstatus, 0);
+	while (pid > 0)
 	{
 		if (pid == last_pid)
 			*status = wstatus;
+		pid = waitpid(-1, &wstatus, 0);
 	}
 }
 
@@ -72,7 +74,14 @@ void	ft_exec_child(t_data *data)
 	if (data->i != (data->ac - 2))
 	{
 		if (data->j == 0)
+		{
+			if (data->in < 0)
+			{
+				free(data);
+				exit(1);
+			}
 			ft_dup_it(data, INFILE);
+		}
 		ft_dup_it(data, WRITE_END);
 	}
 	if (data->j != 0)

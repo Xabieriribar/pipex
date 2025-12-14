@@ -102,6 +102,24 @@ function run_test {
     fi
 }
 
+function check_time {
+    local desc="$1"
+    local min_time="$2"
+    shift 2
+    local args=("$@")
+
+    local start=$(date +%s)
+    $PIPEX "${args[@]}" > /dev/null 2> /dev/null
+    local end=$(date +%s)
+    local duration=$((end - start))
+
+    if [ $duration -ge $min_time ]; then
+         print_result "OK" "$desc" "Duration: ${duration}s (Expected >= ${min_time}s)"
+    else
+         print_result "KO" "$desc" "Duration: ${duration}s (Expected >= ${min_time}s) - Did you wait for all children?"
+    fi
+}
+
 function check_leaks {
     local desc="$1"
     shift
@@ -156,6 +174,15 @@ else
     ((FAILED++))
 fi
 
+echo -e "\n${BLUE}=== Argument Checks ===${RESET}"
+$PIPEX "$INFILE" "ls -l" "$OUTFILE" > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    print_result "OK" "Too few args (3 args)"
+else
+    print_result "KO" "Too few args (3 args) - Should fail/exit non-zero"
+fi
+
+
 echo -e "\n${BLUE}=== Bonus: Multiple Pipes ===${RESET}"
 run_test "3 Cmds: ls | grep | wc" "$INFILE" "ls -l" "grep Pipex" "wc -l" "$OUTFILE"
 run_test "4 Cmds: cat | cat | grep | wc" "$INFILE" "cat" "cat" "grep Pipex" "wc -l" "$OUTFILE"
@@ -176,6 +203,14 @@ else
     echo -e "${RED}[KO]${RESET} Unset PATH failed"
     ((FAILED++))
 fi
+
+echo -e "\n${BLUE}=== Timing/Wait Tests ===${RESET}"
+# Mandatory: sleep 3 | sleep 1 -> Should take 3 seconds if waiting for all.
+# If you only wait for the last one (sleep 1), it will take 1 second (FAIL).
+check_time "Mandatory: sleep 3 | sleep 1" 3 "$INFILE" "sleep 3" "sleep 1" "$OUTFILE"
+
+# Bonus: sleep 1 | sleep 5 | sleep 2 -> Should take 5 seconds.
+check_time "Bonus: sleep 1 | sleep 5 | sleep 2" 5 "$INFILE" "sleep 1" "sleep 5" "sleep 2" "$OUTFILE"
 
 echo -e "\n${BLUE}=== Memory Leaks (Valgrind) ===${RESET}"
 check_leaks "Mandatory: ls | wc" "$INFILE" "ls -l" "wc -l" "$OUTFILE"

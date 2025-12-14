@@ -29,9 +29,6 @@ int	ft_parse_input(int *infile, int *outfile, int ac, char **argv)
 		}
 		write(2, ":", 1);
 		write(2, " ", 1);
-		*infile = open("/dev/null", O_RDONLY);
-		if (*infile == -1)
-			return (perror("/dev/null open failed"), 0);
 		perror(NULL);
 	}
 	*outfile = open(argv[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
