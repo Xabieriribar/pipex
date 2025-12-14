@@ -68,7 +68,7 @@ char	*ft_strdup(const char *s);
 size_t	ft_strlen(const char *s);
 void	ft_fork_error(void);
 void	ft_dup_failed(void);
-void	ft_wait_childs(int ac, int *status, int id);
+void	ft_wait_childs(int *status, pid_t last_pid);
 void	ft_exec_child(t_data *data);
 int		ft_parse_input(int *infile, int *outfile, int ac, char **argv);
 int		ft_initialise_pipes(int pipefdes[], int ac);

@@ -41,7 +41,7 @@ int	ft_pipex(int ac, char **argv, char **envp, t_data *data)
 		data->j += 2;
 	}
 	ft_close_fdes(data);
-	ft_wait_childs(ac, &data->status, id);
+	ft_wait_childs(&data->status, id);
 	if (WIFEXITED(data->status))
 		return (WEXITSTATUS(data->status));
 	return (0);

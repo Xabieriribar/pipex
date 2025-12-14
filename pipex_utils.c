@@ -66,9 +66,7 @@ char	*ft_search_pathname(char **envp, char *cmd)
 void	ft_execve_args(char ***cmds, char **path, char *cmd, char **envp)
 {
 	char	**divide;
-	int		i;
 
-	i = 0;
 	if (*cmd == '/')
 	{
 		divide = ft_split(cmd, ' ');

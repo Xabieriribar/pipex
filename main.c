@@ -12,15 +12,15 @@
 
 #include "pipex.h"
 
-void	ft_wait_childs(int ac, int *status, int id)
+void	ft_wait_childs(int *status, pid_t last_pid)
 {
-	int		i;
+	pid_t	pid;
+	int		wstatus;
 
-	i = 0;
-	while (i < ac - 2)
+	while ((pid = waitpid(-1, &wstatus, 0)) > 0)
 	{
-		waitpid(id, status, 0);
-		i++;
+		if (pid == last_pid)
+			*status = wstatus;
 	}
 }
 
