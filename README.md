@@ -81,17 +81,3 @@ Use Valgrind to ensure there are no memory leaks:
 ```bash
 valgrind --leak-check=full --show-leak-kinds=all ./pipex infile "ls -l" "wc -l" outfile
 ```
-
-### Automated Testing
-A tester script `tester.sh` is included to automate these checks.
-
-1. Give execution permission:
-   ```bash
-   chmod +x tester.sh
-   ```
-2. Run the tester:
-   ```bash
-   ./tester.sh
-   ```
-
-The script checks standard behavior, multiple pipes (bonus), error handling, and memory leaks.

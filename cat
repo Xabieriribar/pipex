@@ -1,1 +1,0 @@
-./pipex infile "awk '{print \$1}'" "cat" outfile
